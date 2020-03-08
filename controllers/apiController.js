@@ -143,6 +143,33 @@ module.exports = function (app) {
                 return next(err);
             });
     });
+    app.get('/api/dimensions/valuetypes', function (req, res) {
+        db.any('SELECT  valuetype,dimension  FROM typevalue')
+            .then(function (data) {
+                res.json({
+                    status: 'success',
+                    data: data
+                });
+            })
+            .catch(function (err) {
+                return next(err);
+            });
+    });
+    //dunaamiline valauetype by room
+    
+    app.get('/api/data/valuetypes/:room', function (req, res) {
+        db.any('SELECT DISTINCT typevalue.valuetype  FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id  WHERE room=\''+req.params.room+'\'')
+            .then(function (data) {
+                res.json({
+                    status: 'success',
+                    data: data
+                });
+            })
+            .catch(function (err) {
+                return next(err);
+            });
+    });
+    
     app.get('/api/valuetypes', function (req, res) {
         db.any('SELECT  valuetype,dimension  FROM typevalue')
             .then(function (data) {
@@ -210,7 +237,7 @@ module.exports = function (app) {
     //adnmed diagrammi interval valitud päevad
     app.get('/api/data/room/interval/:start/:end', function (req, res) {
 
-        db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, to_char( date_time,\'MON DD YY\') AS date  FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE date_time BETWEEN \'' + req.params.start + '\' AND \'' + req.params.end + '\'')
+        db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, datasensor.date_time as date FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE date_time BETWEEN \'' + req.params.start + '\' AND \'' + req.params.end + '\'')
             .then(function (data) {
                 res.json({
                     status: 'success',
@@ -224,6 +251,23 @@ module.exports = function (app) {
             })
 
     });
+    app.get('/api/data/:room/:day/:valuetype', function (req, res) {
+
+        db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, datasensor.date_time as date FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE date_time::date = \'' + req.params.day + '\' AND typevalue.valuetype=\'' + req.params.valuetype + '\' AND room =\'' + req.params.room + '\' ORDER BY date_time')
+            .then(function (data) {
+                res.json({
+                    status: 'success',
+                    data: data
+                });
+            }).catch(err => {
+                res.json({
+                    description: "Cant find any data",
+                    error: err
+                });
+            })
+
+    });
+    
     app.get('/api/avaragedata/rooms/interval/months/:months', function (req, res) {
         db.any('SELECT	avgdata.date_time,avgdata.dimension,avgdata.room,avgdata.valuetype,AVG(avgdata.data)FROM ( SELECT controller_sensor.room,datasensor.data,datasensor.date_time,typevalue.valuetype,typevalue.dimension FROM datasensor INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id 	INNER JOIN controller_sensor on datasensor.id_controllersensor=controller_sensor.id  WHERE datasensor.date_time >= current_timestamp - interval \'' + req.params.months + ' months\') AS avgdata   GROUP BY avgdata.valuetype,avgdata.room ,avgdata.dimension,avgdata.date_time limit 20')
             .then(function (data) {
