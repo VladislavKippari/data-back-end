@@ -1,12 +1,12 @@
 var config = require('../config');
 var pgp = require('pg-promise')();
 var db = pgp(config.getDbConnectionString());
+const Pusher = require('pusher');
+const pg = require ('pg');
 module.exports = function (app) {
     app.all('/*', function(req, res, next) {
-        // CORS headers
-        res.header("Access-Control-Allow-Origin", "*"); // restrict it to the required domain
+        res.header("Access-Control-Allow-Origin", "*"); 
         res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-        // Set custom headers for CORS
         res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
         if (req.method == 'OPTIONS') {
           res.status(200).end();
@@ -14,6 +14,29 @@ module.exports = function (app) {
           next();
         }
       });
+      const pool = new pg.Pool({
+        connectionString: config.getDbConnectionString(),
+      });
+    
+      var pusher = new Pusher({
+        appId: '969447',
+        key: 'bd5d7310044a12129c50',
+        secret: 'a5f454ed8d0278957cd7',
+        cluster: 'eu',
+        encrypted: true
+      });
+    
+      pool.connect((err, client) => {
+        if(err) {
+          console.log(err);
+        }
+        client.on('notification', function(msg) {
+          pusher.trigger('watch_datasensor4','my-event', JSON.parse(msg.payload));
+        });
+        client.query('LISTEN watch_datasensor4');
+      });
+   
+    
     app.get('/api/rooms', function (req, res) {
         db.any('SELECT DISTINCT room FROM controller_sensor')
             .then(function (data) {
@@ -28,7 +51,7 @@ module.exports = function (app) {
                 });
             })
     });
-    app.get('/api/dates', function (req, res) {
+    /*app.get('/api/dates', function (req, res) {
         db.any('SELECT DISTINCT to_char( date_time, \'yyyy/mm/dd\') as date FROM datasensor')
             .then(function (data) {
                 res.json({
@@ -41,7 +64,7 @@ module.exports = function (app) {
                     error: err
                 });
             })
-    });
+    });*/
     app.get('/api/sensors', function (req, res) {
         db.any('SELECT DISTINCT sensorname FROM sensor')
             .then(function (data) {
@@ -102,7 +125,8 @@ module.exports = function (app) {
 
     });
 
-    
+
+
     app.get('/api/data/:date', function (req, res) {
 
         db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, to_char( date_time, \'yyyy/mm/dd\') AS date  FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE date_time ::text LIKE \'%' + req.params.date + '%\'  limit 25')
