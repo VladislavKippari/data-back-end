@@ -31,8 +31,18 @@ module.exports = function (app) {
           console.log(err);
         }
         client.on('notification', function(msg) {
-          pusher.trigger('watch_datasensor4','my-event', JSON.parse(msg.payload));
-          pusher.trigger('watch_datasensor4','my-event2', JSON.parse(msg.payload));
+            var events = [{
+                channel: "watch_datasensor4",
+                name: "my-event",
+                data: JSON.parse(msg.payload)
+              },
+              {
+                channel: "watch_datasensor4",
+                name: "my-event2",
+                data:JSON.parse(msg.payload)
+              }];
+              pusher.triggerBatch(events);
+          
         });
         client.query('LISTEN watch_datasensor4');
       });
