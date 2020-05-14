@@ -32,6 +32,7 @@ module.exports = function (app) {
         }
         client.on('notification', function(msg) {
           pusher.trigger('watch_datasensor4','my-event', JSON.parse(msg.payload));
+          pusher.trigger('watch_datasensor4','my-event2', JSON.parse(msg.payload));
         });
         client.query('LISTEN watch_datasensor4');
       });
