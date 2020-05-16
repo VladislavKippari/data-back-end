@@ -42,7 +42,6 @@ module.exports = function (app) {
                 data:JSON.parse(msg.payload)
               }];
               pusher.triggerBatch(events);
-          
         });
         client.query('LISTEN watch_datasensor4');
       });
@@ -62,6 +61,7 @@ module.exports = function (app) {
                 });
             })
     });
+    
     /*app.get('/api/dates', function (req, res) {
         db.any('SELECT DISTINCT to_char( date_time, \'yyyy/mm/dd\') as date FROM datasensor')
             .then(function (data) {
