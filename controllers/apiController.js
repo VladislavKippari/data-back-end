@@ -19,9 +19,9 @@ module.exports = function (app) {
       });
     
       var pusher = new Pusher({
-        appId: '969447',
-        key: 'bd5d7310044a12129c50',
-        secret: 'a5f454ed8d0278957cd7',
+        appId: '',
+        key: '',
+        secret: '',
         cluster: 'eu',
         encrypted: true
       });
