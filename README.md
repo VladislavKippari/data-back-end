@@ -1,6 +1,13 @@
-Create account on Pusher https://pusher.com/ for using realtime data.
+## Backend REST Node.js+Express for Vue SPA
+#### You can find frontend Vue.js SPA on  https://github.com/VladislavKippari/data-front-end
+#### 1. Project setup
+* Clone project:
+  > git clone https://github.com/VladislavKippari/data-back-end.git
+* Then
+  > npm install
+#### 2. Run project
+* In terminal:
+  > node app.js
 
-In apiControllers.js fail declare Pusher variables.
-1. npm install
-2. node app.js
+Pusher and current data from sensor not working, because database is not being updated.
 
