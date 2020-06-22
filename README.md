@@ -9,5 +9,6 @@
 * In terminal:
   > node app.js
 * Now you can run frontend project combined with this backend or try API routes  
-Pusher and current data from sensor not working, because database is not being updated.
+
+## Pusher and current data from sensor not working, because database is not being updated.
 
