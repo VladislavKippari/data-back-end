@@ -14,19 +14,9 @@ module.exports = function (app) {
           next();
         }
       });
-      const pool = new pg.Pool({
-        connectionString: config.getDbConnectionString(),
-      });
-    
-      var pusher = new Pusher({
-        appId: '',
-        key: '',
-        secret: '',
-        cluster: 'eu',
-        encrypted: true
-      });
-    
-      pool.connect((err, client) => {
+     
+/* 
+     pool.connect((err, client) => {
         if(err) {
           console.log(err);
         }
@@ -45,9 +35,10 @@ module.exports = function (app) {
         });
         client.query('LISTEN watch_datasensor4');
       });
-   
+*/
+  
     
-    app.get('/api/rooms', function (req, res) {
+    app.get('/api/rooms', function (req, res,next) {
         db.any('SELECT DISTINCT room FROM controller_sensor')
             .then(function (data) {
                 res.json({
@@ -76,7 +67,7 @@ module.exports = function (app) {
                 });
             })
     });*/
-    app.get('/api/sensors', function (req, res) {
+    app.get('/api/sensors', function (req, res,next) {
         db.any('SELECT DISTINCT sensorname FROM sensor')
             .then(function (data) {
                 res.json({
@@ -90,7 +81,7 @@ module.exports = function (app) {
                 });
             })
     });
-    app.get('/api/controllers', function (req, res) {
+    app.get('/api/controllers', function (req, res,next) {
         db.any('SELECT DISTINCT controllername FROM controller')
             .then(function (data) {
                 res.json({
@@ -105,7 +96,7 @@ module.exports = function (app) {
             })
     });
 
-    app.get('/api/sensor/:id', function (req, res) {
+    app.get('/api/sensor/:id', function (req, res,next) {
         db.any('SELECT * FROM sensor WHERE id=' + req.params.id)
             .then(function (data) {
                 res.json({
@@ -119,7 +110,7 @@ module.exports = function (app) {
                 });
             })
     });
-    app.get('/api/sensorname/:name', function (req, res) {
+    app.get('/api/sensorname/:name', function (req, res,next) {
 
         db.any('SELECT * FROM sensor WHERE sensorname LIKE \'%' + req.params.name + '%\'')
             .then(function (data) {
@@ -138,7 +129,7 @@ module.exports = function (app) {
 
 
 
-    app.get('/api/data/:date', function (req, res) {
+    app.get('/api/data/:date', function (req, res,next) {
 
         db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, to_char( date_time, \'yyyy/mm/dd\') AS date  FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE date_time ::text LIKE \'%' + req.params.date + '%\'  limit 25')
             .then(function (data) {
@@ -154,7 +145,7 @@ module.exports = function (app) {
             })
 
     });
-    app.get('/api/room/:number/sensors/controllers', function (req, res) {
+    app.get('/api/room/:number/sensors/controllers', function (req, res,next) {
         db.any('SELECT sensor.sensorname controller_FROM sensor INNER JOIN controller_sensor ON controller_sensor.id_sensor=sensor.id WHERE controller_sensor.room=' + req.params.number + ':: varchar')
             .then(function (data) {
                 res.json({
@@ -166,7 +157,7 @@ module.exports = function (app) {
                 return next(err);
             });
     });
-    app.get('/api/data/valuetype/:valuetype', function (req, res) {
+    app.get('/api/data/valuetype/:valuetype', function (req, res,next) {
         db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, to_char( date_time, \'yyyy/mm/dd\') AS date  FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE typevalue.valuetype  LIKE \'%' + req.params.valuetype + '%\'  limit 25')
             .then(function (data) {
                 res.json({
@@ -178,7 +169,7 @@ module.exports = function (app) {
                 return next(err);
             });
     });
-    app.get('/api/dimensions/valuetypes', function (req, res) {
+    app.get('/api/dimensions/valuetypes', function (req, res,next) {
         db.any('SELECT  valuetype,dimension  FROM typevalue')
             .then(function (data) {
                 res.json({
@@ -192,7 +183,7 @@ module.exports = function (app) {
     });
     //dunaamiline valauetype by room
     
-    app.get('/api/data/valuetypes/:room', function (req, res) {
+    app.get('/api/data/valuetypes/:room', function (req, res,next) {
         db.any('SELECT DISTINCT typevalue.valuetype  FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id  WHERE room=\''+req.params.room+'\'')
             .then(function (data) {
                 res.json({
@@ -205,7 +196,7 @@ module.exports = function (app) {
             });
     });
     
-    app.get('/api/valuetypes', function (req, res) {
+    app.get('/api/valuetypes', function (req, res,next) {
         db.any('SELECT  valuetype,dimension  FROM typevalue')
             .then(function (data) {
                 res.json({
@@ -218,7 +209,7 @@ module.exports = function (app) {
             });
     });
     //sensor room controller
-    app.get('/api/controller/sensor/room/:room', function (req, res) {
+    app.get('/api/controller/sensor/room/:room', function (req, res,next) {
         db.any('SELECT sensor.sensorname,controller.controllername,controller_sensor.room  FROM controller_sensor   INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE controller_sensor.room  LIKE \'%' + req.params.room + '%\'')
             .then(function (data) {
                 res.json({
@@ -230,7 +221,7 @@ module.exports = function (app) {
                 return next(err);
             });
     });
-    app.get('/api/controller/sensor/room', function (req, res) {
+    app.get('/api/controller/sensor/room', function (req, res,next) {
         db.any('SELECT sensor.sensorname,controller.controllername,controller_sensor.room  FROM controller_sensor  INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id')
             .then(function (data) {
                 res.json({
@@ -242,7 +233,7 @@ module.exports = function (app) {
                 return next(err);
             });
     });
-    app.get('/api/avaragedata', function (req, res) {
+    app.get('/api/avaragedata', function (req, res,next) {
         db.any('SELECT  AVG(data) FROM datasensor INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id GROUP BY typevalue.valuetype;')
             .then(function (data) {
                 res.json({
@@ -255,7 +246,7 @@ module.exports = function (app) {
             });
     });
     
-    app.get('/api/avaragedata/rooms/interval/hours/:hours', function (req, res) {
+    app.get('/api/avaragedata/rooms/interval/hours/:hours', function (req, res,next) {
         db.any('SELECT	avgdata.dimension,avgdata.room,avgdata.valuetype,AVG(avgdata.data)FROM ( SELECT controller_sensor.room,datasensor.data,datasensor.date_time,typevalue.valuetype,typevalue.dimension FROM datasensor INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id 	INNER JOIN controller_sensor on datasensor.id_controllersensor=controller_sensor.id  WHERE datasensor.date_time >= current_timestamp  - interval \'' + req.params.hours + ' hours\') AS avgdata   GROUP BY avgdata.valuetype,avgdata.room ,avgdata.dimension')
             .then(function (data) {
                 res.json({
@@ -270,7 +261,7 @@ module.exports = function (app) {
             })
     });
     //adnmed diagrammi interval valitud päevad
-    app.get('/api/data/room/interval/:start/:end', function (req, res) {
+    app.get('/api/data/room/interval/:start/:end', function (req, res,next) {
 
         db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, datasensor.date_time as date FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE date_time BETWEEN \'' + req.params.start + '\' AND \'' + req.params.end + '\'')
             .then(function (data) {
@@ -286,7 +277,7 @@ module.exports = function (app) {
             })
 
     });
-    app.get('/api/data/:room/:day/:valuetype', function (req, res) {
+    app.get('/api/data/:room/:day/:valuetype', function (req, res,next) {
 
         db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, datasensor.date_time as date FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE date_time::date = \'' + req.params.day + '\' AND typevalue.valuetype=\'' + req.params.valuetype + '\' AND room =\'' + req.params.room + '\' ORDER BY date_time')
             .then(function (data) {
@@ -303,7 +294,7 @@ module.exports = function (app) {
 
     });
     
-    app.get('/api/avaragedata/rooms/interval/months/:months', function (req, res) {
+    app.get('/api/avaragedata/rooms/interval/months/:months', function (req, res,next) {
         db.any('SELECT	avgdata.date_time,avgdata.dimension,avgdata.room,avgdata.valuetype,AVG(avgdata.data)FROM ( SELECT controller_sensor.room,datasensor.data,datasensor.date_time,typevalue.valuetype,typevalue.dimension FROM datasensor INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id 	INNER JOIN controller_sensor on datasensor.id_controllersensor=controller_sensor.id  WHERE datasensor.date_time >= current_timestamp - interval \'' + req.params.months + ' months\') AS avgdata   GROUP BY avgdata.valuetype,avgdata.room ,avgdata.dimension,avgdata.date_time limit 20')
             .then(function (data) {
                 res.json({
@@ -318,7 +309,7 @@ module.exports = function (app) {
             })
     });
    
-    app.get('/api/data/:valuetype/lessthan/:number', function (req, res) {
+    app.get('/api/data/:valuetype/lessthan/:number', function (req, res,next) {
         db.any('SELECT sensor.sensorname,controller.controllername,datasensor.data, typevalue.valuetype,typevalue.dimension,controller_sensor.room, to_char( date_time, \'yyyy/mm/dd\') AS date  FROM datasensor  INNER JOIN typevalue ON datasensor.id_typevalue=typevalue.id INNER JOIN controller_sensor ON datasensor.id_controllersensor=controller_sensor.id INNER JOIN sensor ON controller_sensor.id_sensor=sensor.id INNER JOIN controller ON controller_sensor.id_controller=controller.id WHERE data <' + req.params.number + ' AND typevalue.valuetype LIKE  \'%' + req.params.valuetype + '%\' limit 25')
             .then(function (data) {
                 res.json({
