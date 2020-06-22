@@ -1,4 +1,4 @@
-## Backend REST Node.js+Express for Vue SPA
+
 #### You can find frontend Vue.js SPA on  https://github.com/VladislavKippari/data-front-end
 #### 1. Project setup
 * Clone project:
