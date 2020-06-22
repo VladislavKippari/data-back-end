@@ -6,7 +6,8 @@
 * Then
   > npm install
 #### 2. Run project
-* For running project you need username and password for PostgreSQL connection, to get them ask me on kippari.v@gmail.com
+* For running project you need username and password for PostgreSQL connection, to get them ask me on kippari.v@gmail.com  
+config/index.js route for connection  
 * In terminal:
   > node app.js
 * Now you can run frontend project (https://github.com/VladislavKippari/data-front-end) for better experience with this backend or try API routes:
