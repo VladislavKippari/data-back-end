@@ -8,7 +8,12 @@
 #### 2. Run project
 * In terminal:
   > node app.js
-* Now you can run frontend project combined with this backend or try API routes  
+* Now you can run frontend project (https://github.com/VladislavKippari/data-front-end) for better experience with this backend or try API routes:  
+- /api/sensors  
+- /api/rooms  
+- /api/controllers  
+- /api/room/:number/sensors/controllers  
 
-## Pusher and current data from sensor not working, because database is not being updated.
+## 1. Pusher and current data from sensor not working, because database is not being updated.
+
 
