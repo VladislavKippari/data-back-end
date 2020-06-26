@@ -18,4 +18,5 @@
 
 ## Pusher and current data from sensor not working, because database is not being updated.
 
-
+# Heroku cloud app link.
+- https://dataprjct.herokuapp.com/
